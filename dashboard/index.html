@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Superstore Sales Analysis — Retail Performance Dashboard</title>
+<script src="chart.umd.js"></script>
+<script src="data_embed.js"></script>
+<style>
+:root {
+  --ink:        #14231C;
+  --paper:      #F7F5EF;
+  --panel:      #FFFFFF;
+  --line:       #E2DED2;
+  --forest:     #1F4D3A;
+  --forest-lt:  #2F6B50;
+  --amber:      #C77B1F;
+  --amber-lt:   #E0A24A;
+  --rose:       #A6402F;
+  --muted:      #6B6356;
+  --mono:       'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+  --serif:      'Source Serif 4', 'Georgia', serif;
+  --sans:       'Inter', -apple-system, sans-serif;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.5;
+}
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 28px 80px;
+}
+
+/* ============ HEADER ============ */
+.masthead {
+  padding: 48px 28px 32px;
+  border-bottom: 3px solid var(--ink);
+  margin-bottom: 0;
+}
+.masthead-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--forest);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.eyebrow::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  background: var(--amber);
+  border-radius: 50%;
+  display: inline-block;
+}
+h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 38px;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+}
+.subtitle {
+  font-size: 14.5px;
+  color: var(--muted);
+  margin-top: 6px;
+  max-width: 520px;
+}
+.meta-block {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.meta-block strong { color: var(--ink); display: block; font-size: 13px; margin-bottom: 2px; }
+
+/* ============ KPI ROW ============ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-bottom: 1px solid var(--line);
+}
+.kpi {
+  padding: 28px 24px;
+  border-right: 1px solid var(--line);
+  position: relative;
+}
+.kpi:last-child { border-right: none; }
+.kpi-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.kpi-value {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.kpi-value.amber { color: var(--amber); }
+.kpi-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--forest);
+  margin-top: 8px;
+}
+
+/* ============ SECTIONS ============ */
+section {
+  padding: 44px 0 8px;
+  border-bottom: 1px solid var(--line);
+}
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--amber);
+  font-weight: 600;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.section-note {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  max-width: 640px;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 22px;
+}
+.panel-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.chart-box { position: relative; height: 280px; }
+.chart-box.tall { height: 340px; }
+
+/* ============ TABLES ============ */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ink);
+}
+th.num, td.num { text-align: right; }
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+tr:hover td { background: #FBFAF5; }
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(31,77,58,0.1);
+  color: var(--forest);
+}
+.tag.loss { background: rgba(166,64,47,0.12); color: var(--rose); }
+.num-pos { color: var(--forest-lt); font-family: var(--mono); }
+.num-neg { color: var(--rose); font-family: var(--mono); }
+.num-mono { font-family: var(--mono); }
+
+/* ============ INSIGHT CALLOUTS ============ */
+.callout {
+  border-left: 3px solid var(--amber);
+  background: #FBF6EC;
+  padding: 14px 18px;
+  font-size: 13.5px;
+  color: var(--ink);
+  margin-top: 18px;
+  line-height: 1.6;
+}
+.callout strong { color: var(--forest); }
+.callout.warn { border-left-color: var(--rose); background: #FAF1EE; }
+.callout.warn strong { color: var(--rose); }
+
+/* ============ TABS (Overview vs other views — reused pattern) ============ */
+.legend-row {
+  display: flex;
+  gap: 18px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+/* ============ FOOTER ============ */
+footer {
+  padding: 36px 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+footer a { color: var(--forest); text-decoration: none; border-bottom: 1px dotted var(--forest); }
+
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  h1 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <div class="eyebrow">Retail Performance Report</div>
+      <h1>Superstore Sales Analysis</h1>
+      <p class="subtitle">End-to-end analysis of 9,994 cleaned orders across four years — pricing, profitability, regional performance, and discount strategy.</p>
+    </div>
+    <div class="meta-block">
+      <strong id="meta-range">—</strong>
+      SQL → Python → Dashboard<br>
+      Prepared for portfolio review
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- KPI ROW -->
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <!-- SECTION 1: Revenue trend -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <span class="section-title">Revenue & Profit Trend</span>
+    </div>
+    <p class="section-note">Year-over-year growth has been consistent, but profit hasn't kept pace with revenue every year — margin compression shows up clearly once discounting is layered in (see Section 05).</p>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Monthly Revenue (2015–2018)</div>
+        <div class="chart-box tall"><canvas id="chart-monthly"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Annual Revenue vs. Profit</div>
+        <div class="chart-box tall"><canvas id="chart-yearly"></canvas></div>
+        <div id="yearly-table"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: Category performance -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <span class="section-title">Category & Sub-Category Performance</span>
+    </div>
+    <p class="section-note">Revenue and margin don't move together. Some sub-categories generate strong revenue but barely break even — or lose money outright.</p>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Revenue Share by Category</div>
+        <div class="chart-box"><canvas id="chart-category-donut"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Margin % by Sub-Category</div>
+        <div class="chart-box"><canvas id="chart-subcat-margin"></canvas></div>
+      </div>
+    </div>
+    <div class="callout warn" id="unprofitable-callout"></div>
+  </section>
+
+  <!-- SECTION 3: Regional + Segment -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <span class="section-title">Regional & Customer Segment Breakdown</span>
+    </div>
+    <p class="section-note">The West region leads on both revenue and margin. Central lags on profitability despite reasonable order volume — worth a closer look at discount behavior by region.</p>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Revenue & Margin by Region</div>
+        <div class="chart-box"><canvas id="chart-region"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Customer Segments</div>
+        <div class="chart-box"><canvas id="chart-segment"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: Top products & customers -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <span class="section-title">Top Products & Customers</span>
+    </div>
+    <p class="section-note">The single highest-revenue product — a Canon copier — also delivers the highest absolute profit, but not every top-seller is a top earner.</p>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Top 10 Products by Revenue</div>
+        <div id="top-products-table"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Top 10 Customers by Lifetime Revenue</div>
+        <div id="top-customers-table"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: Discount impact -->
+  <section>
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <span class="section-title">Discount Strategy & Profitability</span>
+    </div>
+    <p class="section-note">This is the clearest signal in the dataset: discounting past ~20% doesn't just reduce margin, it actively destroys profit on those orders.</p>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Margin % by Discount Bucket</div>
+        <div class="chart-box"><canvas id="chart-discount"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Key Finding</div>
+        <div id="discount-callout-panel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: Insights summary -->
+  <section style="border-bottom:none;">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <span class="section-title">Summary of Insights & Recommendations</span>
+    </div>
+    <div class="grid-3" id="insights-grid"></div>
+  </section>
+
+</div>
+
+<footer>
+  Built with SQL (SQLite) + Python (pandas) + Chart.js · Dataset: Superstore Sales (9,994 cleaned orders, 2015–2018)
+</footer>
+
+<script src="dashboard.js"></script>
+</body>
+</html>
