@@ -4,7 +4,7 @@
 ![SQL](https://img.shields.io/badge/SQL-SQLite-blue)
 ![Python](https://img.shields.io/badge/Python-pandas-3776AB?logo=python&logoColor=white)
 
-**[Live Dashboard Demo](#)** ← replace this link once GitHub Pages is enabled
+**[Live Dashboard Demo](https://pushkin-radix.github.io/superstore-sales-analysis/)**
 
 End-to-end retail sales analysis using the classic Superstore dataset, demonstrating the full Data Analyst pipeline: raw data → SQL → Python → interactive dashboard → written insights.
 
